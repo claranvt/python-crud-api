@@ -30,12 +30,12 @@ pipeline {
             }
         }
 
-stage('4. Automated Deployment') {
+        stage('4. Automated Deployment') {
             steps {
-                sh 'docker network create jenkins-net || true'
-                sh 'docker volume create $VOLUME_NAME || true'
-                sh 'docker rm -f $CONTAINER_NAME || true'
-                sh 'docker run -d --name $CONTAINER_NAME --network jenkins-net -p $PORT:$PORT -v $VOLUME_NAME:/var/lib/backend_data $IMAGE_NAME:latest'
+                sh "docker network create jenkins-net || true"
+                sh "docker volume create ${env.VOLUME_NAME} || true"
+                sh "docker rm -f ${env.CONTAINER_NAME} || true"
+                sh "docker run -d --name ${env.CONTAINER_NAME} --network jenkins-net -p ${env.PORT}:${env.PORT} -v ${env.VOLUME_NAME}:/var/lib/backend_data ${env.IMAGE_NAME}:latest"
             }
         }
         
