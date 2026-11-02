@@ -30,26 +30,19 @@ pipeline {
             }
         }
 
-        stage('4. Automated Deployment') {
+stage('4. Automated Deployment') {
             steps {
-                sh '''
-                    docker stop ${CONTAINER_NAME} || true
-                    docker rm ${CONTAINER_NAME} || true
-                    docker volume create ${VOLUME_NAME}
-                    docker run -d \
-                        --name ${CONTAINER_NAME} \
-                        -p ${PORT_MAPPING} \
-                        -v ${VOLUME_NAME}:/var/lib/backend_data \
-                        ${REGISTRY_NAME}:latest
-                '''
+                sh 'docker network create jenkins-net || true'
+                sh 'docker volume create $VOLUME_NAME || true'
+                sh 'docker rm -f $CONTAINER_NAME || true'
+                sh 'docker run -d --name $CONTAINER_NAME --network jenkins-net -p $PORT:$PORT -v $VOLUME_NAME:/var/lib/backend_data $IMAGE_NAME:latest'
             }
         }
-
+        
         stage('5. Health Check') {
             steps {
                 sh 'sleep 3'
-                sh 'curl -fsS http://localhost:5000/health'
-                sh 'docker logs --tail 20 ${CONTAINER_NAME}'
+                sh 'curl -fsS http://$CONTAINER_NAME:$PORT/health'
             }
         }
     }
